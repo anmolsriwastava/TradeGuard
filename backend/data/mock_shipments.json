@@ -1,0 +1,32 @@
+{
+  "shipments": [
+    {
+      "shipment_id": "SHP-001",
+      "container_no": "INMU456789",
+      "vessel_name": "MSC MAYA",
+      "origin_port": "INNSA",
+      "destination_port": "AEJEA",
+      "eta": "2026-04-01",
+      "delivery_deadline": "2026-04-03",
+      "cargo_value_inr": 850000,
+      "penalty_per_day_inr": 25000,
+      "lifecycle_stage": "mid_ocean",
+      "buyer_contact": "+971-XX-XXXXXXX",
+      "priority": "cost"
+    },
+    {
+      "shipment_id": "SHP-002",
+      "container_no": "INMU987654",
+      "vessel_name": "CMA CGM TITAN",
+      "origin_port": "INNSA",
+      "destination_port": "NLRTM",
+      "eta": "2026-04-05",
+      "delivery_deadline": "2026-04-07",
+      "cargo_value_inr": 1200000,
+      "penalty_per_day_inr": 35000,
+      "lifecycle_stage": "booked",
+      "buyer_contact": "+31-XX-XXXXXXX",
+      "priority": "speed"
+    }
+  ]
+}

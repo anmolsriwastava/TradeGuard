@@ -1,0 +1,28 @@
+{
+  "corridors": [
+    {
+      "corridor_id": "INNSA-AEJEA",
+      "timestamp": "2026-03-27T14:00:00Z",
+      "risk_score": 74,
+      "risk_level": "HIGH",
+      "components": {
+        "ais_score": 68,
+        "weather_score": 45,
+        "freight_score": 82,
+        "nlp_score": 79
+      }
+    },
+    {
+      "corridor_id": "INNSA-NLRTM",
+      "timestamp": "2026-03-27T14:00:00Z",
+      "risk_score": 28,
+      "risk_level": "LOW",
+      "components": {
+        "ais_score": 22,
+        "weather_score": 35,
+        "freight_score": 31,
+        "nlp_score": 18
+      }
+    }
+  ]
+}
