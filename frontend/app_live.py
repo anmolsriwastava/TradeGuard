@@ -1,13 +1,23 @@
 import streamlit as st
-from datetime import datetime
+
 import pandas as pd
 import requests
 import os
 import json
 from dotenv import load_dotenv
+from datetime import datetime, timedelta
+# Add time series import
+import sys
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'backend'))
+from models.forecast import RiskForecaster
+
+# Initialize forecaster
+forecaster = RiskForecaster()
 
 # Load environment variables
 load_dotenv()
+# Initialize forecaster
+forecaster = RiskForecaster()
 
 
 
@@ -212,6 +222,8 @@ with st.spinner("📡 Analyzing live supply chain data..."):
     live_risk = calculate_risk_score(live_news)
     risk_level, risk_class = get_risk_level(live_risk)
     recommendation = get_recommendation(live_risk)
+    # After calculating live_risk
+    forecaster.add_current_risk(live_risk)
     shipments = load_shipments()
 
 # -----------------------------
@@ -237,7 +249,7 @@ st.divider()
 # -----------------------------
 # TABS
 # -----------------------------
-tab1, tab2, tab3, tab4, tab5 = st.tabs(["📊 Dashboard", "📝 Register Shipment", "📰 Live News", "💡 Intelligence", "📈 Trends"])
+tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(["📊 Dashboard", "📝 Register Shipment", "📰 Live News", "💡 Intelligence", "📈 Trends", "🔮 Forecast"])
 
 # =============================
 # TAB 1 — DASHBOARD
@@ -578,9 +590,78 @@ with tab5:
     st.caption("Rising trend indicates increasing disruption probability")
     
     st.info(f"**Current Risk:** {live_risk}/100 - {risk_level}")
-
-# -----------------------------
-# FOOTER
-# -----------------------------
-st.divider()
-st.caption("🚢 TradeGuard — AI-Powered Supply Chain Decision Intelligence | Real-time News Analysis")
+#Tab 6 
+with tab6:
+    st.subheader("📈 Risk Forecast - Next 7 Days")
+    st.caption("AI-powered time series forecasting based on historical data")
+    
+    try:
+        # Get forecast
+        forecasts = forecaster.forecast(7)
+        trend = forecaster.get_trend()
+        
+        # Display trend with color coding
+        if trend == "increasing":
+            st.error(f"⚠️ **Trend: {trend.upper()}**")
+            st.caption("Risk expected to rise - prepare contingency plans")
+        elif trend == "decreasing":
+            st.success(f"✅ **Trend: {trend.upper()}**")
+            st.caption("Situation improving - continue monitoring")
+        else:
+            st.info(f"📊 **Trend: {trend.upper()}**")
+            st.caption("Risk levels stable - normal operations")
+        
+        st.divider()
+        
+        # Create forecast dataframe
+        from datetime import timedelta
+        forecast_dates = [(datetime.now() + timedelta(days=i)).strftime("%d %b") for i in range(1, 8)]
+        forecast_df = pd.DataFrame({
+            "Date": forecast_dates,
+            "Forecasted Risk": [round(f, 0) for f in forecasts]
+        })
+        
+        # Show forecast chart
+        st.subheader("7-Day Forecast Chart")
+        st.line_chart(forecast_df.set_index("Date"))
+        
+        # Two columns for forecast details and alert
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.subheader("Forecast Details")
+            st.dataframe(forecast_df, use_container_width=True)
+        
+        with col2:
+            st.subheader("Risk Alert")
+            alert = forecaster.get_risk_alert(forecasts[0])
+            if forecasts[0] >= 80:
+                st.error(f"🚨 {alert}")
+            elif forecasts[0] >= 60:
+                st.warning(f"⚠️ {alert}")
+            elif forecasts[0] >= 40:
+                st.info(f"ℹ️ {alert}")
+            else:
+                st.success(f"✅ {alert}")
+        
+        st.divider()
+        
+        # Historical data chart
+        st.subheader("📊 Historical Risk Trend (Last 30 Days)")
+        
+        hist_df = pd.DataFrame(forecaster.history[-30:])
+        hist_df['date'] = pd.to_datetime(hist_df['date'])
+        
+        st.line_chart(hist_df.set_index('date')['risk_score'])
+        
+        # Show recent history
+        with st.expander("View Historical Data"):
+            recent_history = forecaster.history[-10:]
+            history_df = pd.DataFrame(recent_history)
+            st.dataframe(history_df, use_container_width=True)
+        
+        st.caption("Historical data shows risk patterns. Forecast uses moving average + linear regression.")
+        
+    except Exception as e:
+        st.error(f"Error loading forecast: {e}")
+        st.info("Make sure you have added risk history data. The forecast will appear after a few days of data collection.")

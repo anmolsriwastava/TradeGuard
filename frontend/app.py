@@ -1,6 +1,13 @@
 import streamlit as st
 from datetime import datetime
 import pandas as pd
+# Add time series import
+import sys
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'backend'))
+from models.forecast import RiskForecaster
+
+# Initialize forecaster
+forecaster = RiskForecaster()
 
 # -----------------------------
 # PAGE CONFIG
