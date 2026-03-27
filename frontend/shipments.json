@@ -1,0 +1,44 @@
+[
+  {
+    "id": "CNSH772341",
+    "route": "Nhava Sheva \u2192 Rotterdam",
+    "cargo": "Pharmaceuticals",
+    "value": "\u20b922.0L",
+    "deadline": "2026-04-16",
+    "status": "In Transit"
+  },
+  {
+    "id": "INMU456789",
+    "route": "Nhava Sheva \u2192 Jebel Ali",
+    "cargo": "Garments",
+    "value": "\u20b98.5L",
+    "deadline": "2026-04-03",
+    "status": "In Transit"
+  },
+  {
+    "id": "COCHN887234",
+    "route": "Kochi \u2192 Miami",
+    "cargo": "Spices",
+    "value": "\u20b99.8L",
+    "deadline": "2026-04-09",
+    "status": "At Destination"
+  },
+  {
+    "id": "INMU565626",
+    "route": "INNSA \u2192 AEJEA",
+    "cargo": "Garments",
+    "value": "\u20b911.55L",
+    "deadline": "2026-03-27",
+    "status": "Registered",
+    "created_at": "2026-03-27 23:30"
+  },
+  {
+    "id": "INMU565626",
+    "route": "INNSA \u2192 AEJEA",
+    "cargo": "Garments",
+    "value": "\u20b911.55L",
+    "deadline": "2026-03-27",
+    "status": "Registered",
+    "created_at": "2026-03-27 23:31"
+  }
+]
