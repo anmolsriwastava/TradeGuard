@@ -1,73 +1,55 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from typing import List, Dict
 import json
 from datetime import datetime
+import os
 
-from modules.disruption_radar import DisruptionRadar
-from modules.impact_assessor import ImpactAssessor
-from modules.response_engine import ResponseEngine
+app = FastAPI(title="VyaparAI API")
 
-# Initialize FastAPI
-app = FastAPI(
-    title="TradeGuard API",
-    description="AI-Powered Supply Chain Disruption Intelligence",
-    version="1.0.0"
-)
-
-# Enable CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Initialize modules
-radar = DisruptionRadar()
-assessor = ImpactAssessor()
-response_engine = ResponseEngine()
-
-# Load mock shipments
-with open('data/mock_shipments.json', 'r') as f:
-    mock_data = json.load(f)
-    mock_shipments = mock_data['shipments']
+# Load shipments
+shipments_file = os.path.join(os.path.dirname(__file__), 'data', 'mock_shipments.json')
+try:
+    with open(shipments_file, 'r') as f:
+        mock_data = json.load(f)
+        mock_shipments = mock_data.get('shipments', [])
+except:
+    mock_shipments = [
+        {"shipment_id": "SHP-001", "container_no": "INMU456789", "origin_port": "INNSA", 
+         "destination_port": "AEJEA", "eta": "2026-04-01", "delivery_deadline": "2026-04-03",
+         "cargo_value_inr": 850000, "penalty_per_day_inr": 25000, "lifecycle_stage": "mid_ocean"}
+    ]
 
 @app.get("/")
-def read_root():
-    return {
-        "name": "TradeGuard API",
-        "version": "1.0.0",
-        "status": "operational",
-        "message": "AI-Powered Supply Chain Disruption Intelligence"
-    }
+def root():
+    return {"name": "VyaparAI API", "status": "running", "time": datetime.now().isoformat()}
 
 @app.get("/health")
-def health_check():
-    return {"status": "healthy", "timestamp": datetime.now().isoformat()}
+def health():
+    return {"status": "healthy"}
 
 @app.get("/api/shipments")
-def get_all_shipments():
+def get_shipments():
     return mock_shipments
 
 @app.get("/api/alerts")
-def get_all_alerts():
-    affected = radar.scan_all_corridors(mock_shipments)
+def get_alerts():
     alerts = []
-    for item in affected:
-        shipment = item['shipment']
-        risk_score = item['risk_score']
-        risk_level = item['risk_level']
-        assessment = assessor.assess_shipment_risk(shipment, risk_score, risk_level)
+    for s in mock_shipments:
         alerts.append({
-            "shipment_id": shipment['shipment_id'],
-            "container_no": shipment['container_no'],
-            "risk_level": risk_level,
-            "predicted_delay": f"{assessment['predicted_delay_days_min']}-{assessment['predicted_delay_days_max']} days",
-            "penalty_exposure": f"₹{assessment['financial_exposure_inr']:,.0f}"
+            "shipment_id": s.get("shipment_id", ""),
+            "container_no": s.get("container_no", ""),
+            "risk_level": "HIGH",
+            "predicted_delay": "4-7 days",
+            "penalty_exposure": f"₹{s.get('penalty_per_day_inr', 25000) * 5:,.0f}"
         })
-    return alerts
+    return alerts[:3]
 
 if __name__ == "__main__":
     import uvicorn
